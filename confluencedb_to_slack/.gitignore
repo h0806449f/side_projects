@@ -1,0 +1,13 @@
+# code
+*.zip
+/lambda-layer
+
+
+# ignore terraform 
+/builds
+.terraform
+terraform.tfvars
+
+
+# for secret
+variables.tf
