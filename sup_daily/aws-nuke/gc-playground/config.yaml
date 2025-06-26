@@ -1,0 +1,103 @@
+regions:
+  # - global
+  - us-east-1 # Virginia
+  # - us-east-2
+  # - us-west-1
+  - us-west-2 # Oregon
+  # - ap-south-1
+  # - ap-northeast-3
+  # - ap-northeast-2
+  # - ap-southeast-1
+  # - ap-southeast-2
+  - ap-northeast-1 # Tokyo
+  # - ca-central-1
+  # - eu-central-1
+  # - eu-west-1
+  # - eu-west-2
+  # - eu-west-3
+  # - eu-north-1
+  # - af-south-1
+  # - ap-east-1
+  # - ap-south-2
+  # - ap-southeast-3
+  # - ap-southeast-4
+  # - ca-west-1
+  # - eu-south-1
+  # - eu-south-2
+  # - eu-central-2
+  # - me-south-1
+  # - me-central-1
+  # - il-central-1
+blocklist:
+  - "999999999999"
+# 可使用指令: aws-nuke resource-types，檢查 aws-nuke 如何 filter AWS resources
+resource-types:
+  excludes:
+    - CloudTrailTrail
+    - S3Object
+    - SNSSubscription # prevent deleting CloudGuard & checkpoints' SNS subscriptions
+    - SchedulerSchedule # did not support tag: event bridge scheduler
+    - ECRPublicRepository # did not support tag: ECR
+    - ECRRepository # did not support tag: ECR
+    - CognitoUserPoolClient # did not support tag: CognitoUserPoolClient
+    - BedrockDataSource # did not support tag: Bedrock data source
+    - OSPackage # failed
+    - EC2InternetGatewayAttachment # TEST: 有 tag 仍然會被刪除，暫時排除
+    - BedrockKnowledgeBase # TEST: 有 tag 仍然會被刪除，暫時排除
+    # no longer provides services
+    - CodeStarProject
+    - OpsWorksCMBackup
+    - OpsWorksCMServer
+    - OpsWorksCMServerState
+    - OpsWorksApp
+    - OpsWorksUserProfile
+    - ElasticTranscoderPipeline
+    - OpsWorksInstance
+    - OpsWorksLayer
+    - ElasticTranscoderPipeline
+    - MachineLearningMLModel
+    - MachineLearningEvaluation
+    - MachineLearningDataSource
+    - OpsWorksUserProfile
+    - OpsWorksCMServerState
+    - OpsWorksCMServer
+    - ElasticTranscoderPreset
+    - OpsWorksCMBackup
+    - RoboMakerRobotApplication
+    - MachineLearningBranchPrediction
+    - FMSPolicy
+    - RoboMakerSimulationJob
+    - OpsWorksApp
+    - CloudSearchDomain
+    - FMSNotificationChannel
+    - RoboMakerSimulationApplication
+    - CodeStarProject
+
+accounts:
+  593713876380:
+    filters:
+      __global__:
+        - property: tag:Retention
+          type: dateOlderThan
+          value: 1h
+        - property: tag:Source
+          type: exact
+          value: going-cloud/gc-admin/terraform
+        - property: Name
+          type: regex
+          value: (?i)(cloudguard|checkpoint)
+        - property: tag:aws:cloudformation:stack-name
+          type: regex
+          value: (?i)(cloudguard|checkpoint)
+        - property: logGroupName
+          type: regex
+          value: (?i)(cloudguard|checkpoint)
+        - property: Table
+          type: exact
+          value: tf-locks
+        - property: PolicyName
+          type: regex
+          value: (?i)(cloudguard|checkpoint)
+        - property: RoleName
+          type: regex
+          value: (?i)(cloudguard|checkpoint)

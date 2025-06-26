@@ -1,0 +1,18 @@
+# gitalb repo
+solution/
+project/
+team/
+music_one/
+
+# terraform external module
+.external_modules/
+terraform.md
+
+# cache
+__pycache__/
+
+# 
+.env
+*.json
+*.out
+*.csv

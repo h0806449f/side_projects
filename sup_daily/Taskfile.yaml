@@ -1,0 +1,52 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  asus_378_admin_profile_name: "asus-msp-378-admin"
+  asus_211_admin_profile_name: "asus-msp-211-admin"
+
+tasks:
+  # ASUS 378
+  MSP_securityhub_ASUS_378:
+    desc: "自動 assume 378, 檢查 security hub finding, 並呈現於 streamlit"
+    cmds:
+      - aws-vault exec {{.asus_378_admin_profile_name}} -- streamlit run ./scan_securityhub/main.py
+    silent: false
+
+  # ASUS 211
+  MSP_securityhub_ASUS_211:
+    desc: "自動 assume 211, 檢查 security hub finding, 並呈現於 streamlit"
+    cmds:
+      - aws-vault exec {{.asus_211_admin_profile_name}} -- streamlit run ./scan_securityhub/main.py
+    silent: false
+
+  # esb internal task
+  ESB_pre_aws_nuke:
+    desc: "aws-nuke 前置任務: 回報將刪除資源與不合標準的 tag 到指定的 slack channel"
+    cmds:
+      - open -a Docker
+      - |
+        until docker system info > /dev/null 2>&1; do
+        echo "等待 Docker 啟動..."
+        sleep 3
+        done
+      - cd aws-nuke && poetry run python pre-aws-nuke.py
+
+  # esb internal task
+  ESB_aws_nuke:
+    desc: "正式執行 aws-nuke, 請務必先執行 pre_aws_nuke"
+    cmds:
+      - open -a Docker
+      - |
+        until docker system info > /dev/null 2>&1; do
+        echo "等待 Docker 啟動..."
+        sleep 3
+        done
+      - cd aws-nuke && poetry run python aws-nuke.py
+
+  # scan ESB repo
+  ESB_scan_gitlabrepo:
+    desc: "檢查 ESB gitlab repo 有哪些 skipped pre-commit 項目"
+    cmds:
+      - cd sast && poetry run python script_for_task.py
